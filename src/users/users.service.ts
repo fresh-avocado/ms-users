@@ -5,8 +5,6 @@ import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/users/constants/constants';
-import { RedisService } from 'src/redis/redis.service';
-import { UserType } from 'src/users/enums/userType';
 import { stringifyError } from 'src/utils/stringifyError';
 
 @Injectable()
@@ -15,7 +13,6 @@ export class UsersService {
 
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly redisService: RedisService,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -29,31 +26,47 @@ export class UsersService {
     }
   }
 
-  async createUser(userDTO: UserDTO): Promise<string> {
+  async createUser(userDTO: UserDTO): Promise<User> {
     try {
       userDTO.password = await bcrypt.hash(userDTO.password, SALT_ROUNDS);
       const newUser = this.userRepository.create(userDTO);
       const savedUser = await this.userRepository.save(newUser);
-      const sessionId = await this.redisService.createSession(
-        savedUser.type === 'normal'
-          ? {
-              userEmail: savedUser.email,
-              userType: savedUser.type as UserType,
-              shoppingCart: [],
-            }
-          : {
-              userEmail: savedUser.email,
-              userType: savedUser.type as UserType,
-            },
-      );
-      return sessionId;
+      return savedUser;
     } catch (error) {
-      // TODO: if redis error, say to user that account could be created
       this.logger.error(`error creating user: ${stringifyError(error)}`);
       throw new HttpException(
         'No se pudo crear el usuario',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async getUser(email: string): Promise<User> {
+    let user: User | null;
+    try {
+      user = await this.userRepository.findOne({
+        select: {
+          email: true,
+          password: true,
+          type: true,
+        },
+        where: {
+          email,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`error finding user: ${stringifyError(error)}`);
+      throw new HttpException(
+        'No se pudo crear el usuario',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    if (user === null) {
+      throw new HttpException(
+        { msg: 'Non-existent user' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return user;
   }
 }
