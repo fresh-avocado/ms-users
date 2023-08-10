@@ -1,15 +1,19 @@
 import {
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsString,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { UserType } from '../enums/userType';
+import { UserDTO } from 'src/users/dtos/user.dto';
 
-export class UserDTO {
+export type SignUpDTOType = Pick<
+  UserDTO,
+  'email' | 'password' | 'firstName' | 'lastName'
+>;
+
+export class SignUpDTO implements SignUpDTOType {
   @IsString()
   @IsNotEmpty()
   firstName: string;
@@ -31,7 +35,4 @@ export class UserDTO {
       'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una minúscula, un número y máximo 64 caracteres',
   })
   password: string;
-
-  @IsEnum(UserType)
-  type: UserType;
 }

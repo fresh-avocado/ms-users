@@ -1,5 +1,5 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-import { UserType } from '../enums/enums';
+import { UserType } from '../enums/userType';
 
 @Entity()
 export class User {

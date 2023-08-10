@@ -6,8 +6,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/users/constants/constants';
 import { RedisService } from 'src/redis/redis.service';
-import crypto from 'crypto';
-import { UserType } from 'src/users/enums/enums';
+import { UserType } from 'src/users/enums/userType';
 import { stringifyError } from 'src/utils/stringifyError';
 
 @Injectable()
@@ -35,22 +34,21 @@ export class UsersService {
       userDTO.password = await bcrypt.hash(userDTO.password, SALT_ROUNDS);
       const newUser = this.userRepository.create(userDTO);
       const savedUser = await this.userRepository.save(newUser);
-      const sessionId = crypto.randomUUID() as string;
-      await this.redisService.setSession(
-        sessionId,
+      const sessionId = await this.redisService.createSession(
         savedUser.type === 'normal'
           ? {
-              userId: savedUser.id,
+              userEmail: savedUser.email,
               userType: savedUser.type as UserType,
               shoppingCart: [],
             }
           : {
-              userId: savedUser.id,
+              userEmail: savedUser.email,
               userType: savedUser.type as UserType,
             },
       );
       return sessionId;
     } catch (error) {
+      // TODO: if redis error, say to user that account could be created
       this.logger.error(`error creating user: ${stringifyError(error)}`);
       throw new HttpException(
         'No se pudo crear el usuario',

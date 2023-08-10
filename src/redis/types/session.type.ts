@@ -1,7 +1,7 @@
-import { UserType } from 'src/users/enums/enums';
+import { UserType } from 'src/users/enums/userType';
 
 export type ClientSession = {
-  userId: string;
+  userEmail: string;
   userType: UserType;
   shoppingCart?: any[]; // TODO: type
 };
