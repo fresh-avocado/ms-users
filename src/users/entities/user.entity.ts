@@ -27,5 +27,5 @@ export class User {
     enum: UserType,
     default: UserType.NORMAL,
   })
-  type: string;
+  type: UserType;
 }

@@ -33,5 +33,5 @@ export class UserDTO {
   password: string;
 
   @IsEnum(UserType)
-  type: string;
+  type: UserType;
 }
