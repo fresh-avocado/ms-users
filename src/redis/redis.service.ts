@@ -3,7 +3,6 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  InternalServerErrorException,
   Logger,
   OnModuleDestroy,
 } from '@nestjs/common';
@@ -12,6 +11,11 @@ import { REDIS_CLIENT, SESSION_EXPIRATION_TIME } from './constants/constants';
 import { ClientSession } from './types/session.type';
 import crypto from 'crypto';
 import { stringifyError } from 'src/utils/stringifyError';
+import {
+  CREATE_SESSION_ERROR,
+  GET_SESSION_ERROR,
+  NOT_SIGNED_IN,
+} from 'src/utils/constants/errorMessages';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
@@ -34,11 +38,14 @@ export class RedisService implements OnModuleDestroy {
       this.logger.error(
         `could not create user session: ${stringifyError(error)}`,
       );
-      throw new InternalServerErrorException('could not create user session');
+      throw new HttpException(
+        { msg: CREATE_SESSION_ERROR },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async setSession(key: string, value: ClientSession): Promise<void> {
+  private async setSession(key: string, value: ClientSession): Promise<void> {
     try {
       await this.redis
         .multi()
@@ -47,7 +54,7 @@ export class RedisService implements OnModuleDestroy {
         .exec();
     } catch (error) {
       this.logger.error(`could not set user session: ${stringifyError(error)}`);
-      throw new InternalServerErrorException('could not set user session');
+      throw new Error();
     }
   }
 
@@ -57,10 +64,13 @@ export class RedisService implements OnModuleDestroy {
       res = await this.redis.get(key);
     } catch (error) {
       this.logger.error(`could not get session: ${stringifyError(error)}`);
-      throw new InternalServerErrorException('could not get session');
+      throw new HttpException(
+        { msg: GET_SESSION_ERROR },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
     if (res === null) {
-      throw new HttpException({ msg: 'Not signed in' }, HttpStatus.FORBIDDEN);
+      throw new HttpException({ msg: NOT_SIGNED_IN }, HttpStatus.FORBIDDEN);
     }
     return JSON.parse(res) as ClientSession;
   }

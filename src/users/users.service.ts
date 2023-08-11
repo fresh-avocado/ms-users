@@ -6,6 +6,12 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/users/constants/constants';
 import { stringifyError } from 'src/utils/stringifyError';
+import {
+  CREATE_USER_ERROR,
+  GET_USERS_ERROR,
+  GET_USER_ERROR,
+  NON_EXISTENT_USER_ERROR,
+} from 'src/utils/constants/errorMessages';
 
 @Injectable()
 export class UsersService {
@@ -22,7 +28,10 @@ export class UsersService {
       this.logger.error(
         `error getting all users: ${JSON.stringify(error, null, 2)}`,
       );
-      throw new Error('could not get users');
+      throw new HttpException(
+        { msg: GET_USERS_ERROR },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -35,7 +44,7 @@ export class UsersService {
     } catch (error) {
       this.logger.error(`error creating user: ${stringifyError(error)}`);
       throw new HttpException(
-        'No se pudo crear el usuario',
+        CREATE_USER_ERROR,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -56,14 +65,11 @@ export class UsersService {
       });
     } catch (error) {
       this.logger.error(`error finding user: ${stringifyError(error)}`);
-      throw new HttpException(
-        'No se pudo crear el usuario',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException(GET_USER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     if (user === null) {
       throw new HttpException(
-        { msg: 'Non-existent user' },
+        { msg: NON_EXISTENT_USER_ERROR },
         HttpStatus.BAD_REQUEST,
       );
     }

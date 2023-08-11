@@ -17,18 +17,18 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('/all')
-  @AllowedUserType('normal')
+  @AllowedUserType('onroad')
   @UseGuards(AuthGuard)
   async getAll() {
     return await this.usersService.getAllUsers();
   }
 
+  // FIXME: onroad should only have access to this one
   @Post('/create')
-  @AllowedUserType('onroad')
+  @AllowedUserType('normal')
   @UseGuards(AuthGuard)
   @UsePipes(ValidationPipe)
   async create(@Body() userDTO: UserDTO) {
-    // TODO: only create user
     await this.usersService.createUser(userDTO);
     return {};
   }

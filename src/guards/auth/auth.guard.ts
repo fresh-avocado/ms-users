@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   CanActivate,
   ExecutionContext,
   HttpException,
@@ -10,6 +9,11 @@ import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 import { RedisService } from 'src/redis/redis.service';
 import { Role } from './types/role.type';
+import {
+  MALFORMED_SESSION_COOKIE,
+  NOT_SIGNED_IN,
+  UNAUTHORIZED,
+} from 'src/utils/constants/errorMessages';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,13 +28,16 @@ export class AuthGuard implements CanActivate {
     const signedCookieValue = req.cookies['sessionId'];
 
     if (signedCookieValue === null || signedCookieValue === undefined) {
-      throw new BadRequestException('unauthenticated');
+      throw new HttpException({ msg: NOT_SIGNED_IN }, HttpStatus.UNAUTHORIZED);
     }
 
     const sessionIdObj = req.unsignCookie(signedCookieValue);
 
     if (sessionIdObj.valid === false) {
-      throw new BadRequestException('bad session id');
+      throw new HttpException(
+        { msg: MALFORMED_SESSION_COOKIE },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const sessionId = sessionIdObj.value;
@@ -40,7 +47,7 @@ export class AuthGuard implements CanActivate {
     const role = this.reflector.get<Role>('role', context.getHandler());
 
     if (role !== 'any' && session.userType !== role) {
-      throw new HttpException({ msg: 'Unauthorized' }, HttpStatus.FORBIDDEN);
+      throw new HttpException({ msg: UNAUTHORIZED }, HttpStatus.UNAUTHORIZED);
     }
 
     return true;

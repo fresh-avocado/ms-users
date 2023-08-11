@@ -5,6 +5,7 @@ import { UsersService } from 'src/users/users.service';
 import { SignUpDTO } from './dtos/SignUpDTO.dto';
 import { UserType } from 'src/users/enums/userType';
 import * as bcrypt from 'bcrypt';
+import { WRONG_EMAIL_OR_PASSWORD } from 'src/utils/constants/errorMessages';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +32,7 @@ export class AuthService {
     const res = await bcrypt.compare(signInDTO.password, user.password);
     if (res === false) {
       throw new HttpException(
-        { msg: 'Wrong email or password' },
+        { msg: WRONG_EMAIL_OR_PASSWORD },
         HttpStatus.BAD_REQUEST,
       );
     }
