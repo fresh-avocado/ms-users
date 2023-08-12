@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpCode,
   Logger,
   Post,
   Res,
@@ -19,9 +20,10 @@ import { COOKIE_OPTIONS } from 'src/users/constants/constants';
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('/signIn')
+  @HttpCode(200)
   @UsePipes(ValidationPipe)
   async signin(@Body() signInDTO: SignInDTO, @Res() res: FastifyReply) {
     const sessionId = await this.authService.signIn(signInDTO);
