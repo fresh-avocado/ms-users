@@ -37,7 +37,10 @@ export class UserDTO {
   })
   password: string;
 
-  @ApiProperty({ description: 'User type', enum: [UserType.NORMAL, UserType.ON_ROAD] })
+  @ApiProperty({
+    description: 'User type',
+    enum: [UserType.NORMAL, UserType.ON_ROAD],
+  })
   @IsEnum(UserType)
   type: UserType;
 }

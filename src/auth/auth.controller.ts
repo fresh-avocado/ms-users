@@ -13,10 +13,11 @@ import { SignUpDTO } from './dtos/SignUpDTO.dto';
 import { SignInDTO } from './dtos/SignInDTO.dto';
 import { FastifyReply } from 'fastify';
 import { COOKIE_OPTIONS } from 'src/users/constants/constants';
-import { ApiCreatedResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 // TODO: rate limit endpoints
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);

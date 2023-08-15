@@ -6,7 +6,11 @@ import {
 import { AppModule } from './app.module';
 import fastifyCookie from '@fastify/cookie';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  SwaggerDocumentOptions,
+  SwaggerModule,
+} from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -16,9 +20,7 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const swaggerConfig = new DocumentBuilder()
     .setTitle('ms-users')
-    .setDescription(
-      'Maneja todo relacionado a usuarios y sesiones.',
-    )
+    .setDescription('Maneja todo relacionado a usuarios y sesiones.')
     .setVersion('1.0')
     .addCookieAuth('sessionId', {
       type: 'http',
@@ -26,6 +28,8 @@ async function bootstrap() {
       scheme: '',
       description: 'Signed cookie that holds the sessionId of the current user',
     })
+    .addTag('auth')
+    .addTag('user')
     .build();
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
