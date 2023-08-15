@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -14,18 +15,22 @@ export type SignUpDTOType = Pick<
 >;
 
 export class SignUpDTO implements SignUpDTOType {
+  @ApiProperty({ description: 'First name of the user' })
   @IsString()
   @IsNotEmpty()
   firstName: string;
 
+  @ApiProperty({ description: 'Last name of the user' })
   @IsString()
   @IsNotEmpty()
   lastName: string;
 
+  @ApiProperty({ description: 'Email of the user' })
   @MaxLength(64)
   @IsEmail()
   email: string;
 
+  @ApiProperty({ description: 'Password of the user' })
   @IsString()
   @IsNotEmpty()
   @MinLength(8)

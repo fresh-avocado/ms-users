@@ -13,6 +13,7 @@ import { SignUpDTO } from './dtos/SignUpDTO.dto';
 import { SignInDTO } from './dtos/SignInDTO.dto';
 import { FastifyReply } from 'fastify';
 import { COOKIE_OPTIONS } from 'src/users/constants/constants';
+import { ApiCreatedResponse, ApiOperation } from '@nestjs/swagger';
 
 // TODO: rate limit endpoints
 
@@ -20,8 +21,10 @@ import { COOKIE_OPTIONS } from 'src/users/constants/constants';
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
+  @ApiOperation({ summary: 'Signs a user in. Activates its session.' })
+  @ApiCreatedResponse({ description: 'User was signed in' })
   @Post('/signIn')
   @HttpCode(200)
   @UsePipes(ValidationPipe)
@@ -31,6 +34,8 @@ export class AuthController {
     res.send({});
   }
 
+  @ApiOperation({ summary: 'Creates a user. Activates its session.' })
+  @ApiCreatedResponse({ description: 'User was created and signed in' })
   @Post('/signUp')
   @UsePipes(ValidationPipe)
   async signup(@Body() signUpDTO: SignUpDTO, @Res() res: FastifyReply) {

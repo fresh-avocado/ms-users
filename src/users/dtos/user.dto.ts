@@ -8,20 +8,25 @@ import {
   MinLength,
 } from 'class-validator';
 import { UserType } from '../enums/userType';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UserDTO {
+  @ApiProperty({ description: 'First name of the user' })
   @IsString()
   @IsNotEmpty()
   firstName: string;
 
+  @ApiProperty({ description: 'Last name of the user' })
   @IsString()
   @IsNotEmpty()
   lastName: string;
 
+  @ApiProperty({ description: 'Email of the user' })
   @MaxLength(64)
   @IsEmail()
   email: string;
 
+  @ApiProperty({ description: 'Password of the user' })
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
@@ -32,6 +37,7 @@ export class UserDTO {
   })
   password: string;
 
+  @ApiProperty({ description: 'User type', enum: [UserType.NORMAL, UserType.ON_ROAD] })
   @IsEnum(UserType)
   type: UserType;
 }

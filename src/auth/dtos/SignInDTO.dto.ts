@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -11,10 +12,12 @@ import { UserDTO } from 'src/users/dtos/user.dto';
 type SignInDTOType = Pick<UserDTO, 'email' | 'password'>;
 
 export class SignInDTO implements SignInDTOType {
+  @ApiProperty({ description: 'Email of the user' })
   @MaxLength(64)
   @IsEmail()
   email: string;
 
+  @ApiProperty({ description: 'Password of the user' })
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
